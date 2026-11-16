@@ -16,7 +16,7 @@ Restart Expo after pulling this navigation update because it adds dependencies. 
 - Photographers: profiles, avatars, gallery badges, and a photo-grid overlay.
 - Events: individual expandable events, preparation lists, themed badges, RSVP tooltip, and an email-draft button using the clearly marked demo address `rsvp@example.com`.
 - Profile: seeded member data, editable bio saved on the device, and native profile sharing.
-- Settings: working dark/light and Color Blind Mode switches. Contact/support, text size, login/logout, delete data, notifications, and time zone are disabled demo rows.
+- Settings: working dark/light and Color Blind Mode switches. More settings uses interactive previews: support/account/deletion dialogs, a text-size slider, a notification toggle, and a time-zone picker. These controls keep only temporary local UI state; they do not send messages, change an account, delete data, schedule notifications, or apply text size/time zone to the app.
 - Appearance preferences persist on the device. The alternate palette uses blue/amber and retains text labels; it is not a simulation of individual color-vision conditions.
 
 ## Team ownership
