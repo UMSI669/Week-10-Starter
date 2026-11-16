@@ -5,8 +5,8 @@ An interactive React Native Elements showcase for avatars, badges, cards, toolti
 ## Run in Expo Go
 
 1. Install dependencies with `npm install`.
-2. Run `npx expo start`.
-3. Scan the QR code with Expo Go on a phone. Update Expo Go if it does not support Expo SDK 58.
+2. Run `npx expo start --tunnel`. If port 8081 is already in use, run `npx expo start --tunnel --port 8083`.
+3. Scan the QR code printed in Terminal with the iPhone Camera, then open it in Expo Go. Update Expo Go if it does not support Expo SDK 58.
 
 The light/dark button at the top demonstrates shared theme colors. Tap a photographer's badge to see a tooltip. Expand the photo walk list and tap an event to open its detail overlay.
 
