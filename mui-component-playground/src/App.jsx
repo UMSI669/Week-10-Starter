@@ -88,7 +88,7 @@ export default function App() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [sliderValue, setSliderValue] = useState(50);
   const [ratingValue, setRatingValue] = useState(3);
-  const [primaryColor, setPrimaryColor] = useState('#6750A4');
+  const [primaryColor, setPrimaryColor] = useState('#072883fc');
   const [borderRadius, setBorderRadius] = useState(12);
   const [selectedComponent, setSelectedComponent] = useState(null);
   const [progress, setProgress] = useState(65);
