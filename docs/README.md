@@ -28,8 +28,8 @@ Complete these items before beginning.
 
 You will need:
 
-- A [GitHub account](https://github.com/) 
-- To be logged into expo -  [go to Expo snack](https://snack.expo.dev/) and choose "Log in" if you aren't already and authenticate with your Umich Google account. 
+- A [GitHub account](https://github.com/)
+- To be logged into expo -  [go to Expo snack](https://snack.expo.dev/) and choose "Log in" if you aren't already and authenticate with your Umich Google account.
 
 
 ### Software
