@@ -1,7 +1,23 @@
 {
+  "name": "cafe-order-dashboard",
+  "version": "1.0.0",
+  "main": "index.js",
   "dependencies": {
     "@react-native-vector-icons/material-design-icons": "^14.0.0",
+    "expo": "~58.0.25",
+    "expo-status-bar": "~58.0.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.1",
     "react-native-paper": "^5.15.5",
-    "react-native-safe-area-context": "^5.11.1"
-  }
+    "react-native-safe-area-context": "~5.11.1",
+    "react-native-web": "^0.21.4"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "private": true
 }
