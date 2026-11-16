@@ -1,20 +1,35 @@
 # DLV Week 10 — Photography Club
 
-An interactive React Native Elements showcase for avatars, badges, cards, tooltips, expandable list items, overlays, and themed component defaults. The photography club data is local so the demo works without an account or network request.
+React Native Elements showcase with five independent bottom tabs: Home, Photographers, Events, Profile, and Settings.
 
-## Run in Expo Go
+## Run
 
-1. Install dependencies with `npm install`.
-2. Run `npx expo start --tunnel`. If port 8081 is already in use, run `npx expo start --tunnel --port 8083`.
-3. Scan the QR code printed in Terminal with the iPhone Camera, then open it in Expo Go. Update Expo Go if it does not support Expo SDK 58.
+1. `npm install`
+2. `npx expo start --tunnel --clear --port 8083`
+3. Scan the Terminal QR code with the iPhone Camera and open Expo Go (SDK 58).
 
-The light/dark button at the top demonstrates shared theme colors. Tap a photographer's badge to see a tooltip. Expand the photo walk list and tap an event to open its detail overlay.
+Restart Expo after pulling this navigation update because it adds dependencies. For a browser preview, run `npm run web`.
+
+## Features
+
+- Home: photographer and event cards linking to their pages.
+- Photographers: profiles, avatars, gallery badges, and a photo-grid overlay.
+- Events: individual expandable events, preparation lists, themed badges, RSVP tooltip, and an email-draft button using the clearly marked demo address `rsvp@example.com`.
+- Profile: seeded member data, editable bio saved on the device, and native profile sharing.
+- Settings: working dark/light and Color Blind Mode switches. Contact/support, text size, login/logout, delete data, notifications, and time zone are disabled demo rows.
+- Appearance preferences persist on the device. The alternate palette uses blue/amber and retains text labels; it is not a simulation of individual color-vision conditions.
 
 ## Team ownership
 
-- App setup, theme, screen integration, and PR: `App.js` and `src/theme.js`.
-- Avatars, badges, cards, tooltips: `src/components/MemberCards.js`.
-- Expandable list items and overlays: `src/components/EventShowcase.js`.
-- Shared sample content: `src/data/members.js` and `src/data/events.js`.
+- Navigation: `App.js`.
+- Shared theme and persistence: `src/theme.js`, `src/state/AppState.js`.
+- Pages: `src/screens/`.
+- Photographer cards: `src/components/MemberCards.js`.
+- Event accordions/tooltips: `src/components/EventShowcase.js`.
+- Sample content: `src/data/`.
 
-The two component files contain small working examples for teammates to build on. Keep the imports and default exports intact so both sections stay connected to the main screen. The group's shared document also proposes separate photographer and event pages, a photo-grid overlay, and a color-friendly palette; those are good next additions after this first working version.
+Image upload is not included. Gallery photos are bundled demo images from Lorem Picsum: https://picsum.photos/id/1015, https://picsum.photos/id/1016, https://picsum.photos/id/1025.
+
+## Validation
+
+`npm run lint` and iOS/web exports pass. Browser checks cover navigation, photographer detail and photo overlay, event expansion/RSVP tooltip, and both settings switches. Native sharing, email handoff, and physical-device rendering still need phone verification.

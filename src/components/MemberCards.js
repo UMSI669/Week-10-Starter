@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Avatar, Badge, Card, Text, Tooltip, useTheme } from '@rneui/themed';
+import { Avatar, Badge, Button, Card, Text, Tooltip, useTheme } from '@rneui/themed';
 
 import { members } from '../data/members';
 
 // Teammate 2 can extend this working example with photo avatars and magazine badges.
-export default function MemberCards() {
+export default function MemberCards({ onSelect, limit = members.length }) {
   const { theme } = useTheme();
   const [openTip, setOpenTip] = useState(null);
 
   return (
     <View style={styles.stack}>
-      {members.map((member) => (
+      {members.slice(0, limit).map((member) => (
         <Card key={member.id}>
           <View style={styles.row}>
             <Avatar
@@ -36,6 +36,7 @@ export default function MemberCards() {
             </Tooltip>
           </View>
           <Text style={[styles.summary, { color: theme.colors.muted }]}>{member.summary}</Text>
+        {onSelect && <Button title="View photographer" type="outline" onPress={() => onSelect(member.id)} containerStyle={{ marginTop: 14 }} />}
         </Card>
       ))}
     </View>

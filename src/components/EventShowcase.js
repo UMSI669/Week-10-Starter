@@ -1,75 +1,45 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Badge, Button, ListItem, Overlay, Text, useTheme } from '@rneui/themed';
-
+import { Linking, View } from 'react-native';
+import { Badge, Button, ListItem, Text, Tooltip, useTheme } from '@rneui/themed';
 import { events } from '../data/events';
 
-// Teammate 3 can add RSVP, photo grids, and richer event details here.
-export default function EventShowcase() {
+// Teammate-owned event components, kept separate from navigation and settings.
+export default function EventShowcase({ eventId }) {
   const { theme } = useTheme();
-  const [expanded, setExpanded] = useState(false);
-  const [selected, setSelected] = useState(null);
-
-  return (
-    <View>
-      <View style={[styles.listBox, { borderColor: theme.colors.border }]}>
-        <ListItem.Accordion
-          content={
-            <ListItem.Content>
-              <ListItem.Title style={{ color: theme.colors.ink, fontWeight: '800' }}>
-                Explore photo walks
-              </ListItem.Title>
-              <ListItem.Subtitle style={{ color: theme.colors.muted }}>
-                Tap to {expanded ? 'hide' : 'show'} {events.length} events
-              </ListItem.Subtitle>
-            </ListItem.Content>
-          }
-          isExpanded={expanded}
-          onPress={() => setExpanded(!expanded)}
-        >
-          {events.map((event) => (
-            <ListItem key={event.id} bottomDivider onPress={() => setSelected(event)}>
-              <ListItem.Content>
-                <ListItem.Title style={{ color: theme.colors.ink, fontWeight: '700' }}>
-                  {event.title}
-                </ListItem.Title>
-                <ListItem.Subtitle style={{ color: theme.colors.muted }}>
-                  {event.date} · {event.place}
-                </ListItem.Subtitle>
-              </ListItem.Content>
-              <ListItem.Chevron />
-            </ListItem>
-          ))}
-        </ListItem.Accordion>
-      </View>
-
-      <Overlay
-        isVisible={selected !== null}
-        onBackdropPress={() => setSelected(null)}
-        overlayStyle={[styles.overlay, { backgroundColor: theme.colors.surface }]}
-      >
-        {selected && (
-          <View>
-            <Badge value={selected.theme} status="primary" containerStyle={styles.badge} />
-            <Text h4 style={{ color: theme.colors.ink }}>{selected.title}</Text>
-            <Text style={[styles.meta, { color: theme.colors.primary }]}>
-              {selected.date} · {selected.place}
-            </Text>
-            <Text style={[styles.description, { color: theme.colors.muted }]}>
-              {selected.description}
-            </Text>
-            <Button title="Close event" onPress={() => setSelected(null)} />
-          </View>
-        )}
-      </Overlay>
-    </View>
-  );
+  const [expanded, setExpanded] = useState(eventId || null);
+  const [tip, setTip] = useState(null);
+  const [error, setError] = useState('');
+  async function email(event) {
+    try { await Linking.openURL('mailto:rsvp@example.com?subject=' + encodeURIComponent('RSVP: ' + event.title)); }
+    catch { setError('No email app is available. Demo address: rsvp@example.com'); }
+  }
+  return <View style={{ gap: 16 }}>
+    {events.map(event => <View key={event.id} style={{ borderRadius: 18, borderWidth: 1, borderColor: theme.colors.border, overflow: 'hidden' }}>
+      <ListItem.Accordion
+        accessibilityLabel={'Expand ' + event.title}
+        accessibilityState={{ expanded: expanded === event.id }}
+        containerStyle={{ backgroundColor: theme.colors.surface }}
+        content={<ListItem.Content>
+          <ListItem.Title style={{ color: theme.colors.ink, fontWeight: '800' }}>{event.title}</ListItem.Title>
+          <ListItem.Subtitle style={{ color: theme.colors.muted }}>{event.date}</ListItem.Subtitle>
+        </ListItem.Content>}
+        isExpanded={expanded === event.id}
+        onPress={() => setExpanded(expanded === event.id ? null : event.id)}>
+        <View style={{ padding: 18, gap: 14, backgroundColor: theme.colors.surface }}>
+          <Badge value={event.theme} status="primary" containerStyle={{ alignSelf: 'flex-start' }} />
+          <Text style={{ color: theme.colors.ink, lineHeight: 22 }}>{event.description}</Text>
+          <Text style={{ color: theme.colors.muted }}>Meet at {event.place}</Text>
+          <Text style={{ color: theme.colors.ink, fontWeight: '800' }}>Prepare for the walk</Text>
+          {['Camera or phone', 'Charged battery', 'Comfortable shoes'].map(item => <Text key={item} style={{ color: theme.colors.muted }}>• {item}</Text>)}
+          <Tooltip visible={tip === event.id} onOpen={() => setTip(event.id)} onClose={() => setTip(null)} width={260} height={100} backgroundColor={theme.colors.hero}
+            popover={<Text style={{ color: '#fff', lineHeight: 20 }}>Email the organizer with your name and the event title. This prototype uses a demo email address.</Text>}>
+            <Text accessibilityRole="button" style={{ color: theme.colors.primary, paddingVertical: 12, fontWeight: '700' }}>How do I RSVP?</Text>
+          </Tooltip>
+          <Text style={{ color: theme.colors.muted }}>rsvp@example.com · demo address</Text>
+          <Button title="Open email draft" onPress={() => email(event)} />
+        </View>
+      </ListItem.Accordion>
+    </View>)}
+    {!!error && <Text style={{ color: theme.colors.muted }}>{error}</Text>}
+  </View>;
 }
-
-const styles = StyleSheet.create({
-  listBox: { borderRadius: 18, borderWidth: 1, overflow: 'hidden' },
-  overlay: { width: '86%', borderRadius: 20, padding: 24 },
-  badge: { alignSelf: 'flex-start', marginBottom: 12 },
-  meta: { fontSize: 14, fontWeight: '700', marginTop: 6 },
-  description: { fontSize: 15, lineHeight: 23, marginVertical: 20 },
-});
