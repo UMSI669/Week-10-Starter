@@ -28,7 +28,7 @@ The intended app experience includes:
 - Options to edit answers or retake the quiz.
 - Local character details when live API data is unavailable.
 
-Update this list to reflect the features implemented in the final app.
+All of the features above are implemented. See the root `README.md` for details.
 
 ## Possible Matches
 
@@ -68,8 +68,8 @@ See `package.json` for the actual dependencies and installed versions.
 Clone your team’s repository and enter its directory:
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
-cd <YOUR_REPOSITORY_FOLDER>
+git clone https://github.com/mcichon85/Week-10-CFL.git
+cd Week-10-CFL
 ```
 
 For an npm-based project:
@@ -91,10 +91,10 @@ Follow the terminal instructions to open the app on a supported device or simula
 To start the web version:
 
 ```bash
-npx expo start --web
+npm run web
 ```
 
-If the starter repository uses different commands, replace these instructions with the scripts from `package.json`.
+Requires Node.js 22.13+ (Expo SDK 58).
 
 ## How the Quiz Works
 
@@ -179,9 +179,9 @@ Personality matching uses local profiles. The API, when integrated, supplies cha
 
 Before submission, add the verified details:
 
-- **API provider:** <ADD VERIFIED PROVIDER OR “NOT INTEGRATED”>
-- **Documentation:** <ADD VERIFIED DOCUMENTATION URL>
-- **Integration status:** <DESCRIBE ACTUAL STATUS>
+- **API provider:** HP-API (`https://hp-api.onrender.com/api/characters`)
+- **Documentation:** https://hp-api.onrender.com/ · source: https://github.com/KostaSav/hp-api
+- **Integration status:** Integrated in `src/services/characterApi.ts`. The schema, character IDs (Dobby included), and CORS were verified in the API's open-source repo. The live host couldn't be reached from the build environment, so confirm a live request once on a normal network.
 
 The intended fallback behavior is:
 
@@ -211,11 +211,11 @@ Use the scripts available in `package.json`.
 
 Document actual verification results before submission:
 
-- **Type checking:** <RESULT OR “NOT RUN”>
-- **Automated tests:** <RESULT OR “NOT RUN”>
-- **Web build:** <RESULT OR “NOT RUN”>
-- **Manual web demo:** <RESULT OR “NOT RUN”>
-- **Mobile testing:** <RESULT OR “NOT RUN”>
+- **Type checking:** `npm run typecheck`: passed (no errors)
+- **Automated tests:** `npm test`: 46 passed in 4 suites
+- **Web build:** `npm run build:web`: succeeded
+- **Manual web demo:** Checked in headless Chrome at desktop and mobile widths (full flow, mocked API success and failure, keyboard navigation). Repeat once on a team laptop before presenting.
+- **Mobile testing:** NOT RUN on a device or simulator
 
 Important cases to check:
 
