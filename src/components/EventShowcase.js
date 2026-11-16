@@ -1,45 +1,57 @@
-import { useState } from 'react';
-import { Linking, View } from 'react-native';
-import { Badge, Button, ListItem, Text, Tooltip, useTheme } from '@rneui/themed';
-import { events } from '../data/events';
+import { useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Text, useTheme } from '@rneui/themed';
 
-// Teammate-owned event components, kept separate from navigation and settings.
-export default function EventShowcase({ eventId }) {
+import { selectEventSections } from '../events/eventSelectors';
+import { MOCK_DATA_NOTICE, photoWalks } from '../data/photoWalks';
+import { useAppState } from '../state/AppState';
+import EventSection from './events/EventSection';
+
+/**
+ * Teammate-owned events feature: Saved, Upcoming, and Attended sections of
+ * inline-expandable photo walk cards. Saved stays at the top of the page and
+ * shares bookmark state with the other sections through AppState.
+ *
+ * `eventId` pre-expands one card so Home's "Explore event" button still lands
+ * on the right walk. Rendered inside the shared Screen scroll view, so the
+ * sections map their cards instead of nesting another vertical list.
+ */
+export default function EventShowcase({ eventId, events = photoWalks }) {
   const { theme } = useTheme();
-  const [expanded, setExpanded] = useState(eventId || null);
-  const [tip, setTip] = useState(null);
-  const [error, setError] = useState('');
-  async function email(event) {
-    try { await Linking.openURL('mailto:rsvp@example.com?subject=' + encodeURIComponent('RSVP: ' + event.title)); }
-    catch { setError('No email app is available. Demo address: rsvp@example.com'); }
-  }
-  return <View style={{ gap: 16 }}>
-    {events.map(event => <View key={event.id} style={{ borderRadius: 18, borderWidth: 1, borderColor: theme.colors.border, overflow: 'hidden' }}>
-      <ListItem.Accordion
-        accessibilityLabel={'Expand ' + event.title}
-        accessibilityState={{ expanded: expanded === event.id }}
-        containerStyle={{ backgroundColor: theme.colors.surface }}
-        content={<ListItem.Content>
-          <ListItem.Title style={{ color: theme.colors.ink, fontWeight: '800' }}>{event.title}</ListItem.Title>
-          <ListItem.Subtitle style={{ color: theme.colors.muted }}>{event.date}</ListItem.Subtitle>
-        </ListItem.Content>}
-        isExpanded={expanded === event.id}
-        onPress={() => setExpanded(expanded === event.id ? null : event.id)}>
-        <View style={{ padding: 18, gap: 14, backgroundColor: theme.colors.surface }}>
-          <Badge value={event.theme} status="primary" containerStyle={{ alignSelf: 'flex-start' }} />
-          <Text style={{ color: theme.colors.ink, lineHeight: 22 }}>{event.description}</Text>
-          <Text style={{ color: theme.colors.muted }}>Meet at {event.place}</Text>
-          <Text style={{ color: theme.colors.ink, fontWeight: '800' }}>Prepare for the walk</Text>
-          {['Camera or phone', 'Charged battery', 'Comfortable shoes'].map(item => <Text key={item} style={{ color: theme.colors.muted }}>• {item}</Text>)}
-          <Tooltip visible={tip === event.id} onOpen={() => setTip(event.id)} onClose={() => setTip(null)} width={260} height={100} backgroundColor={theme.colors.hero}
-            popover={<Text style={{ color: '#fff', lineHeight: 20 }}>Email the organizer with your name and the event title. This prototype uses a demo email address.</Text>}>
-            <Text accessibilityRole="button" style={{ color: theme.colors.primary, paddingVertical: 12, fontWeight: '700' }}>How do I RSVP?</Text>
-          </Tooltip>
-          <Text style={{ color: theme.colors.muted }}>rsvp@example.com · demo address</Text>
-          <Button title="Open email draft" onPress={() => email(event)} />
-        </View>
-      </ListItem.Accordion>
-    </View>)}
-    {!!error && <Text style={{ color: theme.colors.muted }}>{error}</Text>}
-  </View>;
+  const { savedEventIds } = useAppState();
+  const [expandedSectionIds, setExpandedSectionIds] = useState([]);
+  const [expandedCardKeys, setExpandedCardKeys] = useState(() =>
+    eventId ? ['upcoming:' + eventId, 'attended:' + eventId, 'saved:' + eventId] : []
+  );
+
+  const sections = useMemo(
+    () => selectEventSections(events, savedEventIds, new Date()),
+    [events, savedEventIds]
+  );
+
+  const toggle = (setter) => (value) =>
+    setter((current) =>
+      current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
+    );
+
+  return (
+    <View style={styles.page}>
+      <Text style={[styles.notice, { color: theme.colors.muted }]}>{MOCK_DATA_NOTICE}</Text>
+      {sections.map((section) => (
+        <EventSection
+          key={section.id}
+          section={section}
+          isSectionExpanded={expandedSectionIds.includes(section.id)}
+          onToggleSection={toggle(setExpandedSectionIds)}
+          expandedCardKeys={expandedCardKeys}
+          onToggleCard={toggle(setExpandedCardKeys)}
+        />
+      ))}
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  page: { gap: 28 },
+  notice: { fontSize: 12, lineHeight: 18 },
+});
