@@ -7,7 +7,7 @@ export default function Home({ navigation }) {
   const { theme } = useTheme();
   return <Screen title="See campus differently." subtitle="Your photography community. New perspectives, familiar places.">
     <Text h4 style={{ color: theme.colors.ink }}>Featured photographers</Text>
-    <MemberCards limit={2} onSelect={id => navigation.navigate('PhotographerProfile', { id })} />
+    <MemberCards limit={4} layout="grid" onSelect={id => navigation.navigate('PhotographerProfile', { id })} />
     <Button type="outline" title="View all photographers" onPress={() => navigation.navigate('Photographers')} />
     <Text h4 style={{ color: theme.colors.ink }}>Next photo walks</Text>
     {events.map(event => <Card key={event.id}>

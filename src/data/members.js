@@ -17,4 +17,10 @@ export const members = [
     detail: 'Jordan plans photo walks and shares composition tips with the group.',
     avatarColor: '#D5F4E8',
   },
+  {
+    id: 'alex', name: 'Alex Rivera', initials: 'AR', role: 'Landscapes', club: 'Photography Club',
+    summary: 'Frames campus landmarks through changing light.',
+    detail: 'Alex explores campus landscapes and helps members experiment with natural light.',
+    avatarColor: '#F3DDF5',
+  },
 ];
