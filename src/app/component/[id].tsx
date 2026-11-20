@@ -15,31 +15,36 @@ function OptionButtons({ value, onValueChange, options }: { value: string; onVal
   return <SegmentedButtons value={value} onValueChange={onValueChange} buttons={options.map((option) => ({ ...option, showSelectedCheck: true }))} />;
 }
 
-function RadioChoices({ value, onValueChange, options }: { value: string; onValueChange: (value: string) => void; options: { value: string; label: string }[] }) {
-  return <RadioButton.Group value={value} onValueChange={onValueChange}>{options.map((option) => <RadioButton.Item key={option.value} value={option.value} label={option.label} style={styles.radioChoice} />)}</RadioButton.Group>;
-}
-
 function RadioDemo() {
-  const [value, setValue] = useState('normal');
+  const [value, setValue] = useState('Normal');
   const [status, setStatus] = useState<Choice>('checked');
   const [pressAction, setPressAction] = useState('nothing');
   const [disabled, setDisabled] = useState(false);
-  const [message, setMessage] = useState('Any helper text for event listened');
+  const [pressed, setPressed] = useState(false);
+
+  const label = `${value.trim() || 'Normal'}${disabled ? ' (Disabled)' : ''}`;
   const handlePress = () => {
-    if (disabled) return;
+    // "Nothing" means no handler: pressing leaves the radio button unchanged.
+    if (pressAction === 'nothing') return;
     setStatus('checked');
-    setMessage('onPressed event listened');
-    if (pressAction === 'alert') Alert.alert('Radio Button', 'onPressed event listened');
+    setPressed(true);
+    Alert.alert('Radio Button', 'onPress event fired');
   };
+  const changePressAction = (next: string) => { setPressAction(next); setPressed(false); };
+  const helper = disabled
+    ? 'Disabled: presses are ignored.'
+    : pressAction === 'nothing'
+      ? 'No onPress handler: pressing does nothing.'
+      : pressed ? 'onPress fired: an alert was shown.' : 'Press the radio button to fire onPress.';
 
   return <>
-    <Card mode="outlined"><RadioButton.Item label={disabled && status === 'checked' ? 'Checked (Disabled)' : value || 'Normal'} value={value || 'normal'} status={status} onPress={handlePress} disabled={disabled} /></Card>
-    <HelperText type="info" visible style={styles.centerHelper}>{disabled ? 'Helper text' : message}</HelperText>
+    <Card mode="outlined"><RadioButton.Item label={label} value={value.trim() || 'normal'} status={status} onPress={handlePress} disabled={disabled} /></Card>
+    <HelperText type="info" visible style={styles.centerHelper}>{helper}</HelperText>
     <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
-    <OptionRow label="Value"><TextInput mode="outlined" dense value={value} onChangeText={setValue} placeholder="Default Input" accessibilityLabel="Radio button value" /></OptionRow>
-    <OptionRow label="Status"><RadioChoices value={status} onValueChange={(next) => setStatus(next as Choice)} options={[{ value: 'checked', label: 'Checked' }, { value: 'unchecked', label: 'Unchecked' }]} /></OptionRow>
-    <OptionRow label="onPress"><RadioChoices value={pressAction} onValueChange={setPressAction} options={[{ value: 'nothing', label: 'Nothing' }, { value: 'alert', label: 'Put Alert' }]} /></OptionRow>
-    <OptionRow label="disabled"><RadioChoices value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
+    <OptionRow label="Label"><TextInput mode="outlined" dense value={value} onChangeText={setValue} placeholder="Normal" accessibilityLabel="Radio button label" /></OptionRow>
+    <OptionRow label="Status"><OptionButtons value={status} onValueChange={(next) => setStatus(next as Choice)} options={[{ value: 'checked', label: 'Checked' }, { value: 'unchecked', label: 'Unchecked' }]} /></OptionRow>
+    <OptionRow label="On press"><OptionButtons value={pressAction} onValueChange={changePressAction} options={[{ value: 'nothing', label: 'Nothing' }, { value: 'alert', label: 'Show alert' }]} /></OptionRow>
+    <OptionRow label="Disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
   </>;
 }
 
@@ -143,7 +148,6 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 48 },
   intro: { color: MD3LightTheme.colors.onSurfaceVariant, marginBottom: 24 },
   demoBox: { borderWidth: 1, borderColor: MD3LightTheme.colors.outline, borderRadius: 4, minHeight: 68, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 8 },
-  radioChoice: { paddingHorizontal: 4 },
   centerHelper: { textAlign: 'center', marginTop: 18, marginBottom: 28 },
   sectionTitle: { fontWeight: '700', marginTop: 28, marginBottom: 16 },
   optionRow: { marginBottom: 20 },
