@@ -111,10 +111,17 @@ function SearchDemo() {
   </>;
 }
 
+// Opening a detail URL directly leaves nothing to go back to, so fall back to the home screen.
+function goBack() {
+  if (router.canGoBack()) router.back();
+  else router.replace('/');
+}
+
 export default function ComponentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const component = components.find((item) => item.id === id);
-  if (!component) return <SafeAreaView style={styles.screen}><Appbar.Header><Appbar.BackAction onPress={() => router.back()} /><Appbar.Content title="Not found" /></Appbar.Header><Text style={styles.content}>This component does not exist.</Text></SafeAreaView>;
+  // Appbar.Header already pads for the top safe-area inset, so the screen only handles the sides.
+  if (!component) return <SafeAreaView style={styles.screen} edges={['left', 'right']}><Appbar.Header style={styles.appbar}><Appbar.BackAction onPress={goBack} accessibilityLabel="Back to components" /><Appbar.Content title="Not found" titleStyle={styles.appbarTitle} /></Appbar.Header><Text style={styles.content}>This component does not exist.</Text></SafeAreaView>;
 
   const demos: Record<ComponentId, React.ReactNode> = {
     'radio-button': <RadioDemo />,
@@ -126,7 +133,7 @@ export default function ComponentScreen() {
     'search-bar': <SearchDemo />,
   };
 
-  return <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}><Appbar.Header style={styles.appbar}><Appbar.BackAction onPress={() => router.back()} accessibilityLabel="Back to components" /><Appbar.Content title={component.title} titleStyle={styles.appbarTitle} /></Appbar.Header><ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"><Text style={styles.intro}>{component.description}</Text>{demos[component.id]}</ScrollView></SafeAreaView>;
+  return <SafeAreaView style={styles.screen} edges={['left', 'right']}><Appbar.Header style={styles.appbar}><Appbar.BackAction onPress={goBack} accessibilityLabel="Back to components" /><Appbar.Content title={component.title} titleStyle={styles.appbarTitle} /></Appbar.Header><ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"><Text style={styles.intro}>{component.description}</Text>{demos[component.id]}</ScrollView></SafeAreaView>;
 }
 
 const styles = StyleSheet.create({
