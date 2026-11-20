@@ -1,0 +1,171 @@
+import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Appbar, Button, Card, Checkbox, HelperText, MD3LightTheme, Menu, RadioButton, Searchbar, SegmentedButtons, Text, TextInput } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { components, type ComponentId } from '../../data/components';
+import { fruits } from '../../data/fruits';
+
+type Choice = 'checked' | 'unchecked';
+
+function OptionRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return <View style={styles.optionRow}><Text style={styles.optionLabel}>{label}</Text><View style={styles.optionControl}>{children}</View></View>;
+}
+
+function OptionButtons({ value, onValueChange, options }: { value: string; onValueChange: (value: string) => void; options: { value: string; label: string }[] }) {
+  return <SegmentedButtons value={value} onValueChange={onValueChange} buttons={options.map((option) => ({ ...option, showSelectedCheck: true }))} />;
+}
+
+function RadioDemo() {
+  const [value, setValue] = useState('Normal');
+  const [status, setStatus] = useState<Choice>('checked');
+  const [pressAction, setPressAction] = useState('nothing');
+  const [disabled, setDisabled] = useState(false);
+  const [pressed, setPressed] = useState(false);
+
+  const label = `${value.trim() || 'Normal'}${disabled ? ' (Disabled)' : ''}`;
+  const handlePress = () => {
+    // "Nothing" means no handler: pressing leaves the radio button unchanged.
+    if (pressAction === 'nothing') return;
+    setStatus('checked');
+    setPressed(true);
+    Alert.alert('Radio Button', 'onPress event fired');
+  };
+  const changePressAction = (next: string) => { setPressAction(next); setPressed(false); };
+  const helper = disabled
+    ? 'Disabled: presses are ignored.'
+    : pressAction === 'nothing'
+      ? 'No onPress handler: pressing does nothing.'
+      : pressed ? 'onPress fired: an alert was shown.' : 'Press the radio button to fire onPress.';
+
+  return <>
+    <Card mode="outlined"><RadioButton.Item label={label} value={value.trim() || 'normal'} status={status} onPress={handlePress} disabled={disabled} /></Card>
+    <HelperText type="info" visible style={styles.centerHelper}>{helper}</HelperText>
+    <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
+    <OptionRow label="Label"><TextInput mode="outlined" dense value={value} onChangeText={setValue} placeholder="Normal" accessibilityLabel="Radio button label" /></OptionRow>
+    <OptionRow label="Status"><OptionButtons value={status} onValueChange={(next) => setStatus(next as Choice)} options={[{ value: 'checked', label: 'Checked' }, { value: 'unchecked', label: 'Unchecked' }]} /></OptionRow>
+    <OptionRow label="On press"><OptionButtons value={pressAction} onValueChange={changePressAction} options={[{ value: 'nothing', label: 'Nothing' }, { value: 'alert', label: 'Show alert' }]} /></OptionRow>
+    <OptionRow label="Disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
+  </>;
+}
+
+function TextInputDemo() {
+  const [value, setValue] = useState('');
+  const [mode, setMode] = useState('outlined');
+  const [disabled, setDisabled] = useState(false);
+  return <>
+    <TextInput label="Your name" mode={mode as 'outlined' | 'flat'} value={value} onChangeText={setValue} disabled={disabled} accessibilityLabel="Your name" />
+    <HelperText type="info" visible>Enter a name to see the input update.</HelperText>
+    <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
+    <OptionRow label="Style"><OptionButtons value={mode} onValueChange={setMode} options={[{ value: 'outlined', label: 'Outlined' }, { value: 'flat', label: 'Flat' }]} /></OptionRow>
+    <OptionRow label="Disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
+  </>;
+}
+
+function HelperTextDemo() {
+  const [value, setValue] = useState('');
+  const [type, setType] = useState('auto');
+  // "Auto" applies the 3-character rule to what is typed; Info and Error force that type.
+  const tooShort = value.trim().length > 0 && value.trim().length < 3;
+  const isError = type === 'error' || (type === 'auto' && tooShort);
+  return <>
+    <TextInput label="Username" mode="outlined" value={value} onChangeText={setValue} error={isError} accessibilityLabel="Username" />
+    <HelperText type={isError ? 'error' : 'info'} visible>{isError ? 'This username needs at least 3 characters.' : 'Use at least 3 characters for your username.'}</HelperText>
+    <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
+    <OptionRow label="Type"><OptionButtons value={type} onValueChange={setType} options={[{ value: 'auto', label: 'Auto' }, { value: 'info', label: 'Info' }, { value: 'error', label: 'Error' }]} /></OptionRow>
+  </>;
+}
+
+function ValidationDemo() {
+  const [email, setEmail] = useState('');
+  const [touched, setTouched] = useState(false);
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  // Errors wait until the field has been left once, so a half-typed address isn't flagged.
+  const error = touched && !valid;
+  return <>
+    <TextInput label="Email address" mode="outlined" value={email} onChangeText={setEmail} onBlur={() => setTouched(true)} keyboardType="email-address" autoCapitalize="none" autoComplete="email" error={error} accessibilityLabel="Email address" />
+    <HelperText type={error ? 'error' : 'info'} visible>{error ? 'Enter a valid email address.' : valid ? 'Looks good! Your email is valid.' : 'Try an address like name@example.com.'}</HelperText>
+    <Text style={styles.supportingText}>Success shows as soon as the address is valid. Errors appear after you leave the field, then update as you type.</Text>
+  </>;
+}
+
+function CheckboxDemo() {
+  const [checked, setChecked] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  return <>
+    <Checkbox.Item label="Send me updates" status={checked ? 'checked' : 'unchecked'} onPress={() => setChecked((current) => !current)} disabled={disabled} mode="android" style={styles.demoBox} />
+    <HelperText type="info" visible>{checked ? 'Updates are selected.' : 'Updates are not selected.'}</HelperText>
+    <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
+    <OptionRow label="Status"><OptionButtons value={String(checked)} onValueChange={(next) => setChecked(next === 'true')} options={[{ value: 'true', label: 'Checked' }, { value: 'false', label: 'Unchecked' }]} /></OptionRow>
+    <OptionRow label="Disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
+  </>;
+}
+
+function MenuDemo() {
+  const [visible, setVisible] = useState(false);
+  const [selection, setSelection] = useState('Nothing selected');
+  const [icons, setIcons] = useState(true);
+  const [disabled, setDisabled] = useState(false);
+  const choose = (value: string) => { setSelection(value); setVisible(false); };
+  const items = [{ title: 'Edit', icon: 'pencil' }, { title: 'Share', icon: 'share-variant' }, { title: 'Delete', icon: 'delete' }];
+  return <>
+    <View style={styles.menuAnchor}><Menu visible={visible} onDismiss={() => setVisible(false)} anchor={<Button mode="outlined" icon="chevron-down" onPress={() => setVisible(true)} disabled={disabled}>Open menu</Button>}>{items.map((item) => <Menu.Item key={item.title} onPress={() => choose(item.title)} title={item.title} leadingIcon={icons ? item.icon : undefined} />)}</Menu></View>
+    <HelperText type="info" visible>{disabled ? 'Disabled: the menu cannot be opened.' : `Selected action: ${selection}`}</HelperText>
+    <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
+    <OptionRow label="Leading icons"><OptionButtons value={String(icons)} onValueChange={(next) => setIcons(next === 'true')} options={[{ value: 'true', label: 'Show' }, { value: 'false', label: 'Hide' }]} /></OptionRow>
+    <OptionRow label="Disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
+  </>;
+}
+
+function SearchDemo() {
+  const [query, setQuery] = useState('');
+  const results = fruits.filter((fruit) => fruit.toLowerCase().includes(query.trim().toLowerCase()));
+  return <>
+    <Searchbar placeholder="Search fruits" value={query} onChangeText={setQuery} accessibilityLabel="Search fruits" />
+    <HelperText type="info" visible>{results.length} {results.length === 1 ? 'result' : 'results'}</HelperText>
+    <View style={styles.results}>{results.length ? results.map((fruit) => <Text key={fruit} style={styles.result}>{fruit}</Text>) : <Text style={styles.supportingText}>No fruits found.</Text>}</View>
+  </>;
+}
+
+// Opening a detail URL directly leaves nothing to go back to, so fall back to the home screen.
+function goBack() {
+  if (router.canGoBack()) router.back();
+  else router.replace('/');
+}
+
+export default function ComponentScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const component = components.find((item) => item.id === id);
+  // Appbar.Header already pads for the top safe-area inset, so the screen only handles the sides.
+  if (!component) return <SafeAreaView style={styles.screen} edges={['left', 'right']}><Appbar.Header style={styles.appbar}><Appbar.BackAction onPress={goBack} accessibilityLabel="Back to components" /><Appbar.Content title="Not found" titleStyle={styles.appbarTitle} /></Appbar.Header><Text style={styles.content}>This component does not exist.</Text></SafeAreaView>;
+
+  const demos: Record<ComponentId, React.ReactNode> = {
+    'radio-button': <RadioDemo />,
+    'menu': <MenuDemo />,
+    'text-input': <TextInputDemo />,
+    'helper-text': <HelperTextDemo />,
+    'validation': <ValidationDemo />,
+    'checkbox': <CheckboxDemo />,
+    'search-bar': <SearchDemo />,
+  };
+
+  return <SafeAreaView style={styles.screen} edges={['left', 'right']}><Appbar.Header style={styles.appbar}><Appbar.BackAction onPress={goBack} accessibilityLabel="Back to components" /><Appbar.Content title={component.title} titleStyle={styles.appbarTitle} /></Appbar.Header><ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled"><Text style={styles.intro}>{component.description}</Text>{demos[component.id]}</ScrollView></SafeAreaView>;
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: MD3LightTheme.colors.background },
+  appbar: { backgroundColor: MD3LightTheme.colors.surface },
+  appbarTitle: { fontWeight: '700' },
+  content: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 48 },
+  intro: { color: MD3LightTheme.colors.onSurfaceVariant, marginBottom: 24 },
+  demoBox: { borderWidth: 1, borderColor: MD3LightTheme.colors.outline, borderRadius: 4, minHeight: 68, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 8 },
+  centerHelper: { textAlign: 'center', marginTop: 18, marginBottom: 28 },
+  sectionTitle: { fontWeight: '700', marginTop: 28, marginBottom: 16 },
+  optionRow: { marginBottom: 20 },
+  optionLabel: { marginBottom: 8, color: MD3LightTheme.colors.onSurfaceVariant },
+  optionControl: { width: '100%' },
+  supportingText: { color: MD3LightTheme.colors.onSurfaceVariant, marginTop: 16 },
+  menuAnchor: { alignItems: 'flex-start', marginBottom: 16 },
+  results: { marginTop: 16, gap: 8 },
+  result: { padding: 14, backgroundColor: MD3LightTheme.colors.surfaceVariant, borderRadius: 8 },
+});
