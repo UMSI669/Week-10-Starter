@@ -63,12 +63,15 @@ function TextInputDemo() {
 
 function HelperTextDemo() {
   const [value, setValue] = useState('');
-  const [type, setType] = useState('info');
+  const [type, setType] = useState('auto');
+  // "Auto" applies the 3-character rule to what is typed; Info and Error force that type.
+  const tooShort = value.trim().length > 0 && value.trim().length < 3;
+  const isError = type === 'error' || (type === 'auto' && tooShort);
   return <>
-    <TextInput label="Username" mode="outlined" value={value} onChangeText={setValue} accessibilityLabel="Username" />
-    <HelperText type={type as 'info' | 'error'} visible>{type === 'error' ? 'This username needs at least 3 characters.' : 'Use at least 3 characters for your username.'}</HelperText>
+    <TextInput label="Username" mode="outlined" value={value} onChangeText={setValue} error={isError} accessibilityLabel="Username" />
+    <HelperText type={isError ? 'error' : 'info'} visible>{isError ? 'This username needs at least 3 characters.' : 'Use at least 3 characters for your username.'}</HelperText>
     <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
-    <OptionRow label="Type"><OptionButtons value={type} onValueChange={setType} options={[{ value: 'info', label: 'Info' }, { value: 'error', label: 'Error' }]} /></OptionRow>
+    <OptionRow label="Type"><OptionButtons value={type} onValueChange={setType} options={[{ value: 'auto', label: 'Auto' }, { value: 'info', label: 'Info' }, { value: 'error', label: 'Error' }]} /></OptionRow>
   </>;
 }
 
@@ -76,11 +79,12 @@ function ValidationDemo() {
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState(false);
   const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  // Errors wait until the field has been left once, so a half-typed address isn't flagged.
   const error = touched && !valid;
   return <>
-    <TextInput label="Email address" mode="outlined" value={email} onChangeText={(text) => { setEmail(text); setTouched(true); }} onBlur={() => setTouched(true)} keyboardType="email-address" autoCapitalize="none" autoComplete="email" error={error} accessibilityLabel="Email address" />
+    <TextInput label="Email address" mode="outlined" value={email} onChangeText={setEmail} onBlur={() => setTouched(true)} keyboardType="email-address" autoCapitalize="none" autoComplete="email" error={error} accessibilityLabel="Email address" />
     <HelperText type={error ? 'error' : 'info'} visible>{error ? 'Enter a valid email address.' : valid ? 'Looks good! Your email is valid.' : 'Try an address like name@example.com.'}</HelperText>
-    <Text style={styles.supportingText}>The field changes state as you type.</Text>
+    <Text style={styles.supportingText}>Success shows as soon as the address is valid. Errors appear after you leave the field, then update as you type.</Text>
   </>;
 }
 
