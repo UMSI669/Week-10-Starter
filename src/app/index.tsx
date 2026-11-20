@@ -1,16 +1,25 @@
 import { router } from 'expo-router';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { Card, RadioButton, Searchbar, Text, TextInput, Checkbox, MD3LightTheme } from 'react-native-paper';
+import { Button, Card, Checkbox, HelperText, MD3LightTheme, RadioButton, Searchbar, Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMemo, useState } from 'react';
 import { components, type ComponentId } from '../data/components';
 
+function PreviewContent({ id }: { id: ComponentId }) {
+  switch (id) {
+    case 'radio-button': return <View style={styles.previewRow}><Text>Normal</Text><RadioButton value="normal" status="checked" /></View>;
+    case 'checkbox': return <View style={styles.previewRow}><Text>Send me updates</Text><Checkbox status="checked" /></View>;
+    case 'menu': return <View style={styles.previewMenu}><Button mode="outlined" icon="chevron-down">Open menu</Button></View>;
+    case 'text-input': return <TextInput mode="outlined" label="Your name" value="" editable={false} style={styles.previewInput} />;
+    case 'helper-text': return <View><TextInput mode="outlined" label="Username" value="" editable={false} style={styles.previewInput} /><HelperText type="info" visible>Use at least 3 characters for your username.</HelperText></View>;
+    case 'validation': return <View><TextInput mode="outlined" label="Email address" value="name@" editable={false} error style={styles.previewInput} /><HelperText type="error" visible>Enter a valid email address.</HelperText></View>;
+    case 'search-bar': return <Searchbar placeholder="Search fruits" value="" editable={false} style={styles.previewSearch} />;
+  }
+}
+
+// Previews are decorative: they must not swallow taps meant for the card or be read out by screen readers.
 function Preview({ id }: { id: ComponentId }) {
-  if (id === 'radio-button') return <View style={styles.previewRow}><Text>Normal</Text><RadioButton value="normal" status="checked" /></View>;
-  if (id === 'checkbox') return <View style={styles.previewRow}><Text>Checked</Text><Checkbox status="checked" /></View>;
-  if (id === 'text-input' || id === 'validation' || id === 'helper-text') return <TextInput mode="outlined" label={id === 'validation' ? 'Email address' : 'Your name'} value="" editable={false} style={styles.previewInput} />;
-  if (id === 'search-bar') return <Searchbar placeholder="Search components" value="" editable={false} style={styles.previewSearch} />;
-  return <View style={styles.previewRow}><Text>Choose an option</Text><Text variant="titleMedium">⌄</Text></View>;
+  return <View style={styles.preview} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><PreviewContent id={id} /></View>;
 }
 
 export default function HomeScreen() {
@@ -43,6 +52,8 @@ const styles = StyleSheet.create({
   cardTitle: { marginTop: 14, fontWeight: '700' },
   description: { color: MD3LightTheme.colors.onSurfaceVariant, marginTop: 3 },
   previewRow: { borderWidth: 1, borderColor: MD3LightTheme.colors.outline, minHeight: 56, borderRadius: 4, paddingLeft: 16, paddingRight: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  preview: { pointerEvents: 'none' },
+  previewMenu: { alignItems: 'flex-start' },
   previewInput: { backgroundColor: MD3LightTheme.colors.surface, height: 56 },
   previewSearch: { backgroundColor: MD3LightTheme.colors.surfaceVariant },
   empty: { textAlign: 'center', marginTop: 32, color: MD3LightTheme.colors.onSurfaceVariant },
