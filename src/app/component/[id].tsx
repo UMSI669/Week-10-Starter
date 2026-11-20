@@ -4,6 +4,7 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar, Button, Card, Checkbox, HelperText, MD3LightTheme, Menu, RadioButton, Searchbar, SegmentedButtons, Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { components, type ComponentId } from '../../data/components';
+import { fruits } from '../../data/fruits';
 
 type Choice = 'checked' | 'unchecked';
 
@@ -57,7 +58,7 @@ function TextInputDemo() {
     <HelperText type="info" visible>Enter a name to see the input update.</HelperText>
     <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
     <OptionRow label="Style"><OptionButtons value={mode} onValueChange={setMode} options={[{ value: 'outlined', label: 'Outlined' }, { value: 'flat', label: 'Flat' }]} /></OptionRow>
-    <OptionRow label="disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
+    <OptionRow label="Disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
   </>;
 }
 
@@ -92,31 +93,37 @@ function CheckboxDemo() {
   const [checked, setChecked] = useState(false);
   const [disabled, setDisabled] = useState(false);
   return <>
-    <Checkbox.Item label="Send me updates" status={checked ? 'checked' : 'unchecked'} onPress={() => setChecked(!checked)} disabled={disabled} mode="android" style={styles.demoBox} />
+    <Checkbox.Item label="Send me updates" status={checked ? 'checked' : 'unchecked'} onPress={() => setChecked((current) => !current)} disabled={disabled} mode="android" style={styles.demoBox} />
     <HelperText type="info" visible>{checked ? 'Updates are selected.' : 'Updates are not selected.'}</HelperText>
     <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
     <OptionRow label="Status"><OptionButtons value={String(checked)} onValueChange={(next) => setChecked(next === 'true')} options={[{ value: 'true', label: 'Checked' }, { value: 'false', label: 'Unchecked' }]} /></OptionRow>
-    <OptionRow label="disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
+    <OptionRow label="Disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
   </>;
 }
 
 function MenuDemo() {
   const [visible, setVisible] = useState(false);
   const [selection, setSelection] = useState('Nothing selected');
+  const [icons, setIcons] = useState(true);
+  const [disabled, setDisabled] = useState(false);
   const choose = (value: string) => { setSelection(value); setVisible(false); };
+  const items = [{ title: 'Edit', icon: 'pencil' }, { title: 'Share', icon: 'share-variant' }, { title: 'Delete', icon: 'delete' }];
   return <>
-    <View style={styles.menuAnchor}><Menu visible={visible} onDismiss={() => setVisible(false)} anchor={<Button mode="outlined" icon="chevron-down" onPress={() => setVisible(true)}>Open menu</Button>}><Menu.Item onPress={() => choose('Edit')} title="Edit" leadingIcon="pencil" /><Menu.Item onPress={() => choose('Share')} title="Share" leadingIcon="share-variant" /><Menu.Item onPress={() => choose('Delete')} title="Delete" leadingIcon="delete" /></Menu></View>
-    <HelperText type="info" visible>Selected action: {selection}</HelperText>
+    <View style={styles.menuAnchor}><Menu visible={visible} onDismiss={() => setVisible(false)} anchor={<Button mode="outlined" icon="chevron-down" onPress={() => setVisible(true)} disabled={disabled}>Open menu</Button>}>{items.map((item) => <Menu.Item key={item.title} onPress={() => choose(item.title)} title={item.title} leadingIcon={icons ? item.icon : undefined} />)}</Menu></View>
+    <HelperText type="info" visible>{disabled ? 'Disabled: the menu cannot be opened.' : `Selected action: ${selection}`}</HelperText>
+    <Text variant="titleMedium" style={styles.sectionTitle}>Options</Text>
+    <OptionRow label="Leading icons"><OptionButtons value={String(icons)} onValueChange={(next) => setIcons(next === 'true')} options={[{ value: 'true', label: 'Show' }, { value: 'false', label: 'Hide' }]} /></OptionRow>
+    <OptionRow label="Disabled"><OptionButtons value={String(disabled)} onValueChange={(next) => setDisabled(next === 'true')} options={[{ value: 'true', label: 'True' }, { value: 'false', label: 'False' }]} /></OptionRow>
   </>;
 }
 
 function SearchDemo() {
   const [query, setQuery] = useState('');
-  const results = components.filter((item) => item.title.toLowerCase().includes(query.trim().toLowerCase()));
+  const results = fruits.filter((fruit) => fruit.toLowerCase().includes(query.trim().toLowerCase()));
   return <>
-    <Searchbar placeholder="Search components" value={query} onChangeText={setQuery} accessibilityLabel="Search component examples" />
+    <Searchbar placeholder="Search fruits" value={query} onChangeText={setQuery} accessibilityLabel="Search fruits" />
     <HelperText type="info" visible>{results.length} {results.length === 1 ? 'result' : 'results'}</HelperText>
-    <View style={styles.results}>{results.map((item) => <Text key={item.id} style={styles.result}>{item.title}</Text>)}</View>
+    <View style={styles.results}>{results.length ? results.map((fruit) => <Text key={fruit} style={styles.result}>{fruit}</Text>) : <Text style={styles.supportingText}>No fruits found.</Text>}</View>
   </>;
 }
 
